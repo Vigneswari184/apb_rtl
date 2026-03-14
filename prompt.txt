@@ -1,0 +1,5 @@
+The APB system contains several design and implementation issues. The apb_top module is incomplete, as it declares internal APB bus signals but does not instantiate or connect the apb_master and apb_slave modules, leaving the design non-functional. The reset logic is inconsistent, since PRESET_n is intended to be an active-low reset but is used with a posedge sensitivity list in some modules.
+
+In the apb_master, the finite state machine is incomplete because the SETUP state does not define a next state, and several control signals such as PWRITE, PADDR, and PWDATA are not assigned in all branches, which may lead to unintended latch inference. Additionally, a state variable (state_t state) is declared but never used, while separate present and next registers are used for state control, creating redundant logic. The master also fails to capture read data from PRDATA into RDATA.
+
+Overall, the APB protocol sequence (IDLE → SETUP → ACCESS) is not fully implemented, and the lack of proper module connections and signal assignments could lead to functional errors and simulation failures.
