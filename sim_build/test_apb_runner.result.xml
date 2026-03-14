@@ -1,0 +1,10 @@
+<testsuites name="results">
+  <testsuite name="all" package="all">
+    <property name="random_seed" value="1773480809" />
+    <testcase name="apb_random_test" classname="test_apb_rtl_hidden" file="/home/arunvigni/apb_rtl/tests/test_apb_rtl_hidden.py" lineno="83" time="0.015674114227294922" sim_time_ns="920.0" ratio_time="58695.50181010617" />
+    <testcase name="apb_back_to_back_test" classname="test_apb_rtl_hidden" file="/home/arunvigni/apb_rtl/tests/test_apb_rtl_hidden.py" lineno="120" time="0.016501426696777344" sim_time_ns="920.0" ratio_time="55752.75501358146" />
+    <testcase name="apb_reset_value_test" classname="test_apb_rtl_hidden" file="/home/arunvigni/apb_rtl/tests/test_apb_rtl_hidden.py" lineno="145" time="0.01629781723022461" sim_time_ns="820.0" ratio_time="50313.48605869101" />
+    <testcase name="apb_full_register_test" classname="test_apb_rtl_hidden" file="/home/arunvigni/apb_rtl/tests/test_apb_rtl_hidden.py" lineno="165" time="0.028663158416748047" sim_time_ns="1459.9999999999995" ratio_time="50936.4662041889" />
+    <testcase name="apb_stress_test" classname="test_apb_rtl_hidden" file="/home/arunvigni/apb_rtl/tests/test_apb_rtl_hidden.py" lineno="195" time="0.07099390029907227" sim_time_ns="4500.000000000001" ratio_time="63385.72723914432" />
+  </testsuite>
+</testsuites>
