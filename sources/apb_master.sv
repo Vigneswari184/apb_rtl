@@ -25,13 +25,18 @@ module apb_master #(
 state_t state;
   reg [1:0] present,next;
 
-  always @(posedge PCLK or posedge PRESET_n) begin
+  always @(posedge PCLK or negedge PRESET_n) begin
     if (!PRESET_n)
       present <= IDLE;
     else
       present <= next;
   end       
-  always @(*) begin    
+  always @(*) begin 
+    PSELx   = 0;
+    PENABLE = 0;
+    PADDR   = 0;
+    PWDATA  = 0;
+    PWRITE  = 0;    
     case(present)        
         IDLE: begin
           PSELx = 0;
@@ -58,17 +63,15 @@ state_t state;
          ACCESS: begin
            PSELx = 1;
            PENABLE = 1;
+           PADDR = WADDR;
+           PWDATA = WDATA;
+           PWRITE = WRITE_IN;
            if(PREADY == 0)
              next = ACCESS;
            else if(PREADY==1 && WRITE_IN)
-             begin
-               next = IDLE;
-               PADDR = WADDR;
-               PWDATA = WDATA;
-               PWRITE = WRITE_IN;
-              end
-          else
-              next = IDLE;           
+             next = IDLE;
+           else
+             next = IDLE;
          end          
           endcase          
         end
