@@ -207,7 +207,30 @@ async def apb_reset_value_test(dut):
 # -------------------------------------------------
 # Full register sweep
 # -------------------------------------------------
+@cocotb.test()
+async def apb_full_register_test(dut):
 
+    cocotb.start_soon(Clock(dut.PCLK, 10, units="ns").start())
+
+    await reset(dut)
+
+    driver = APBDriver(dut)
+
+    model = {}
+
+    for addr in range(0, 64, 4):
+
+        data = random.randint(0, 0xffffffff)
+
+        await driver.write(addr, data)
+
+        model[addr] = data
+
+    for addr in range(0, 64, 4):
+
+        val = await driver.read(addr)
+
+        assert val == model[addr]
 
 
 
