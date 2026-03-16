@@ -58,8 +58,7 @@ class APBDriver:
         dut.TRANSFER.value = 0
         while _logic_to_int(dut.PENABLE.value) == 0:
             await RisingEdge(dut.PCLK)
-        await RisingEdge(dut.PCLK)   # end of ACCESS cycle (slave registers PRDATA)
-        await RisingEdge(dut.PCLK)   # read data valid next cycle
+        await RisingEdge(dut.PCLK)
         return _logic_to_int(dut.PRDATA.value)
 
 
