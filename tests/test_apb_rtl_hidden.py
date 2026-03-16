@@ -30,13 +30,28 @@ def _logic_to_int(value):
 # APB Driver
 # -------------------------------------------------
 
+# Max cycles to wait for PREADY after ACCESS phase starts (per spec: transaction completes when PREADY=1).
+PREADY_MAX_WAIT_CYCLES = 16
+
+
+async def _wait_for_pready(dut, max_cycles=PREADY_MAX_WAIT_CYCLES):
+    """Wait for PREADY to be 1 within N cycles (after ACCESS phase); raise AssertionError if not seen.
+    Slave outputs PREADY/PRDATA on posedge, so we advance one cycle then poll for PREADY."""
+    await RisingEdge(dut.PCLK)  # First cycle where slave can have driven PREADY after PENABLE=1
+    for _ in range(max_cycles):
+        if _logic_to_int(dut.PREADY.value) == 1:
+            return
+        await RisingEdge(dut.PCLK)
+    raise AssertionError(f"PREADY did not become 1 within {max_cycles} cycles")
+
+
 class APBDriver:
 
     def __init__(self, dut):
         self.dut = dut
 
     async def write(self, addr, data):
-        """Drive test inputs (TRANSFER, WADDR, WDATA, WRITE_IN); DUT drives PSELx, PENABLE."""
+        """Drive test inputs (TRANSFER, WADDR, WDATA, WRITE_IN); DUT drives PSELx, PENABLE. Wait for PREADY within N cycles."""
         dut = self.dut
         dut.WADDR.value = addr
         dut.WDATA.value = data
@@ -46,10 +61,10 @@ class APBDriver:
         dut.TRANSFER.value = 0
         while _logic_to_int(dut.PENABLE.value) == 0:
             await RisingEdge(dut.PCLK)
-        await RisingEdge(dut.PCLK)
+        await _wait_for_pready(dut)
 
     async def read(self, addr):
-        """Drive test inputs; sample PRDATA when DUT has completed transfer."""
+        """Drive test inputs; sample PRDATA when PREADY=1 (within N cycles)."""
         dut = self.dut
         dut.WADDR.value = addr
         dut.WRITE_IN.value = 0
@@ -58,7 +73,7 @@ class APBDriver:
         dut.TRANSFER.value = 0
         while _logic_to_int(dut.PENABLE.value) == 0:
             await RisingEdge(dut.PCLK)
-        await RisingEdge(dut.PCLK)
+        await _wait_for_pready(dut)
         return _logic_to_int(dut.PRDATA.value)
 
 
