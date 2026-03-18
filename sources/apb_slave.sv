@@ -1,46 +1,46 @@
-`timescale 1ns/1ps
 module apb_slave #(
-    parameter ADDR_WIDTH = 8,
     parameter DATA_WIDTH = 32,
-    parameter REG_NUM = 4       // Number of registers
+    parameter ADDR_WIDTH = 8,
+    parameter REG_NUM    = 16
 )(
-    input  wire                  PCLK,
-    input  wire                  PRESET_n,
-    input  wire [ADDR_WIDTH-1:0] PADDR,
-    input  wire [DATA_WIDTH-1:0] PWDATA,
-    input  wire                  PWRITE,
-    input  wire                  PSELx,
-    input  wire                  PENABLE,
-    output reg  [DATA_WIDTH-1:0] PRDATA,
-    output reg                   PREADY,
-    output reg                   PSLVERR
+    input  logic                  PCLK,
+    input  logic                  PRESETn,
+
+    input  logic [ADDR_WIDTH-1:0] PADDR,
+    input  logic [DATA_WIDTH-1:0] PWDATA,
+    input  logic                  PWRITE,
+    input  logic                  PSEL,
+    input  logic                  PENABLE,
+
+    output logic [DATA_WIDTH-1:0] PRDATA,
+    output logic                  PREADY,
+    output logic                  PSLVERR
 );
 
-reg [DATA_WIDTH-1:0] regfile [0:REG_NUM-1];   // Register array
+    logic [DATA_WIDTH-1:0] mem [0:REG_NUM-1];
 
-integer i;
+   
+    wire [3:0] addr_index = PADDR[3:0]; // ignores alignment
 
-// Reset
-always @(posedge PCLK or posedge PRESET_n) begin
-    if (!PRESET_n) begin
-        PREADY  <= 1;
-        PSLVERR <= 0;
-        PRDATA  <= 0;
-        for(i=0; i<REG_NUM; i=i+1)
-            regfile[i] <= 0;
-    end else begin
-        PREADY  <= 1;     // Always ready for this simple example
-        PSLVERR <= 0;
-        
-        if(PSELx && PENABLE) begin
-            if(PWRITE) begin
-                // Word-aligned addressing
-                regfile[PADDR[ADDR_WIDTH-1:2] % REG_NUM] <= PWDATA;
+    always_ff @(posedge PCLK) begin
+        if (PSEL && PENABLE) begin
+
+            if (PWRITE) begin
+                mem[addr_index] <= PWDATA;
             end else begin
-                PRDATA <= regfile[PADDR[ADDR_WIDTH-1:2] % REG_NUM];
+                PRDATA <= mem[addr_index];
             end
+
         end
     end
-end
+
+    
+        PREADY <= ~PREADY;
+    end
+
+    
+    always_ff @(posedge PCLK) begin
+        PSLVERR <= PADDR[0]; // random error generation
+    end
 
 endmodule
