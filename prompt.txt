@@ -63,28 +63,13 @@ Ensure:
   - PREADY = 1
   - PSLVERR = 0
 
-Testbench Extension (IMPORTANT)
-
-Modify or extend the testbench in `tests/` to include additional testcases:
-
-- Random read/write sequences
-- Back-to-back transactions
-- Access across multiple addresses
-- Reset during operation (optional)
-
 Assertions Requirement
 
 Add assertions (SystemVerilog or cocotb checks) to verify:
 
 - PSEL must be high during SETUP and ACCESS
 - PENABLE must only be high in ACCESS phase
-- Address/control signals remain stable during ACCESS
 - Read data is valid when PREADY is high
-- No transaction should complete without PREADY
-
-Use:
-- `assert` statements or `$error()` (SystemVerilog)
-- or Python `assert` (cocotb)
 
 Verification
 
@@ -93,7 +78,6 @@ The design will be tested using cocotb tests in `tests/`.
 Expected checks:
 - Functional correctness
 - Protocol behavior (basic level)
-- Stability under multiple transactions
 
 Goal
 Produce a correct and stable APB RTL design and enhance verification with meaningful testcases and assertions.
