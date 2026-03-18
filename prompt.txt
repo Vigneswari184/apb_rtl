@@ -1,6 +1,4 @@
-##================================================================================
-##PROBLEM: APB Master–Slave RTL Debug and Integration
-##================================================================================
+
 Debug and fix an AMBA APB-based RTL design.
 
 **Context**:
