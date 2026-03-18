@@ -83,10 +83,10 @@ class APBDriver:
 
 async def reset(dut):
 
-    dut.PRESET_n.value = 0
+    dut.PRESETn.value = 0
     await RisingEdge(dut.PCLK)
 
-    dut.PRESET_n.value = 1
+    dut.PRESETn.value = 1
     await RisingEdge(dut.PCLK)
 
 
@@ -249,9 +249,9 @@ def test_apb_runner():
     proj_path = Path(__file__).resolve().parent.parent
 
     sources = [
-        proj_path / "golden/apb_top.sv",
-        proj_path / "golden/apb_master.sv",
-        proj_path / "golden/apb_slave.sv",
+        proj_path / "sources/apb_top.sv",
+        proj_path / "sources/apb_master.sv",
+        proj_path / "sources/apb_slave.sv",
     ]
 
     runner = get_runner(sim)

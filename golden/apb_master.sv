@@ -1,79 +1,68 @@
 `timescale 1ns/1ps
-module apb_master #(
-    parameter ADDR_WIDTH = 8,
-    parameter DATA_WIDTH = 32
-)(
-    input  wire                  PCLK,
-    input  wire                  PRESET_n,
-    input  wire [DATA_WIDTH-1:0] PRDATA,
-    input  wire                  PREADY,
-    input  wire                  PSLVERR,    
-    input  wire                  TRANSFER,
-  	input  wire [ADDR_WIDTH-1:0] WADDR,
-  	input  wire [DATA_WIDTH-1:0] WDATA,
-    input  wire                  WRITE_IN,      // 1=Write, 0=Read
-  	output reg  [DATA_WIDTH-1:0] RDATA,
-  	output reg  [ADDR_WIDTH-1:0] PADDR,
-    output reg  [DATA_WIDTH-1:0] PWDATA,
-    output reg                   PWRITE,
-    output reg                   PSELx,
-    output reg                   PENABLE
+module apb_master (
+    input  wire         PCLK,
+    input  wire         PRESETn,
 
+    input  wire         TRANSFER,
+    input  wire         WRITE_IN,
+    input  wire [15:0]  WADDR,
+    input  wire [31:0]  WDATA,
+
+    input  wire [31:0]  PRDATA,
+    input  wire         PREADY,
+
+    output reg          PSEL,
+    output reg          PENABLE,
+    output reg          PWRITE,
+    output reg  [15:0]  PADDR,
+    output reg  [31:0]  PWDATA,
+    output reg  [31:0]  RDATA
 );
 
-  typedef enum logic [1:0] {IDLE, SETUP, ACCESS} state_t;
-state_t state;
-  reg [1:0] present,next;
+    localparam [1:0] IDLE   = 2'b00,
+                    SETUP  = 2'b01,
+                    ACCESS = 2'b10;
 
-  always @(posedge PCLK or negedge PRESET_n) begin
-    if (!PRESET_n)
-      present <= IDLE;
-    else
-      present <= next;
-  end       
-  always @(*) begin 
-    PSELx   = 0;
-    PENABLE = 0;
-    PADDR   = 0;
-    PWDATA  = 0;
-    PWRITE  = 0;    
-    case(present)        
-        IDLE: begin
-          PSELx = 0;
-          PENABLE = 0;
-          PADDR = 0;
-          PWDATA = 0;
-          if(TRANSFER == 1)
-            begin
-              next = SETUP;
-            end
-          else
-              next = IDLE;
-          end        
-        
-        SETUP: begin
-          PSELx = 1;
-          PENABLE = 0;
-            next = ACCESS;
-            PADDR = WADDR;
-            PWDATA = WDATA;
-            PWRITE = WRITE_IN;
-          end
-                                
-         ACCESS: begin
-           PSELx = 1;
-           PENABLE = 1;
-           PADDR = WADDR;
-           PWDATA = WDATA;
-           PWRITE = WRITE_IN;
-           if(PREADY == 0)
-             next = ACCESS;
-           else if(PREADY==1 && WRITE_IN)
-             next = IDLE;
-           else
-             next = IDLE;
-         end          
-          endcase          
+    reg [1:0] state;
+
+    always @(posedge PCLK or negedge PRESETn) begin
+        if (!PRESETn) begin
+            state   <= IDLE;
+            PSEL    <= 0;
+            PENABLE <= 0;
+            PWRITE  <= 0;
+            PADDR   <= 0;
+            PWDATA  <= 0;
+            RDATA   <= 0;
+        end else begin
+            case (state)
+                IDLE: begin
+                    PSEL    <= 0;
+                    PENABLE <= 0;
+                    if (TRANSFER) begin
+                        state <= SETUP;
+                    end
+                end
+
+                SETUP: begin
+                    PSEL    <= 1;
+                    PENABLE <= 0;
+                    PADDR   <= WADDR;
+                    PWRITE  <= WRITE_IN;
+                    PWDATA  <= WDATA;
+                    state   <= ACCESS;
+                end
+
+                ACCESS: begin
+                    PENABLE <= 1;
+                    if (PREADY) begin
+                        if (!PWRITE)
+                            RDATA <= PRDATA;
+                        state <= IDLE;
+                    end
+                end
+            endcase
         end
-  
+    end
+
 endmodule

@@ -1,0 +1,20 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+.env/
+
+# Build / simulation
+sim_build/
+sim.vvp
+*.result.xml
+*.vcd
+*.fsdb
+
+# IDE / OS
+.idea/
+.vscode/
+*.swp
+.DS_Store

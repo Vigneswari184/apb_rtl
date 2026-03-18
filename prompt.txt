@@ -1,96 +1,99 @@
-================================================================================
-PROBLEM: APB Master–Slave RTL Debug and Integration
-================================================================================
-**Task:** Debug and complete an AMBA APB-based RTL design.
+Debug and fix an AMBA APB-based RTL design.
 
-**Your Task:** Fix and complete the RTL implementation in the rtl/ directory so that the APB system works correctly and passes the provided testbench.
+**Context**:
+You are given a buggy SystemVerilog RTL implementation of an APB system consisting of:
 
-**DUT:** apb_top (in apb_rtl/sourcws/apb_top.sv) — this module connects apb_master and apb_slave internally.
-Instantiate and connect the master and slave inside apb_top. 
+- apb_master
+- apb_slave
+- apb_top
 
-**Requirements**
-1. Complete Top-Level Integration
-  •	Implement the apb_top module.
-  •	Instantiate:
-    •	apb_master
-    •	apb_slave
+The design currently compiles but contains multiple functional and protocol-related bugs.
 
-Connect all APB bus signals between the master and slave:
-`PADDR`
-`PWDATA`
-`PRDATA`
-`PWRITE`
-`PSELx`
-`PENABLE`
-`PREADY`
-`PSLVERR`
+Known issues include:
+- apb_top does NOT instantiate or connect the master and slave
+- apb_master has incorrect FSM transitions and violates APB protocol timing
+- apb_slave has incorrect memory behavior, unstable PREADY, and improper reset handling
 
-**2. Fix APB Master FSM Behavior**
-The APB master must implement the standard APB protocol state machine:
+---
 
-**States:**
-  •	IDLE
-  •	SETUP
-  •	ACCESS
+**Your Task**:
 
-**Expected behavior:**
-1.	IDLE
-  •	PSELx = 0
-  •	PENABLE = 0
-  •	Wait for TRANSFER = 1.
+Fix the RTL design in the `sources/` directory so that it behaves as a correct APB system.
 
-2.	SETUP
-  •	PSELx = 1
-  •	PENABLE = 0
-  •	Address (PADDR) and control (PWRITE) become valid.
+---
 
-3.	ACCESS
-  •	PSELx = 1
-  •	PENABLE = 1
-  •	Transaction completes when PREADY = 1.
+### Required Fixes
 
-**3. Implement Read and Write Transactions**
-**Write Operation**
-  •	WRITE_IN = 1
-  •	PWRITE = 1
-  •	Data from WDATA must be driven on PWDATA
-  •	Address must be driven on PADDR
+#### 1. apb_top
+- Instantiate both `apb_master` and `apb_slave`
+- Properly connect all APB interface signals:
+  - PADDR, PWDATA, PRDATA
+  - PWRITE, PSEL, PENABLE
+  - PREADY, PSLVERR
+- Ensure signal directions and widths match correctly
 
-**Read Operation**
-  •	WRITE_IN = 0
-  •	PWRITE = 0
-  •	Data from PRDATA must be captured into RDATA.
+---
 
-**4. Slave Register File Behavior**
-The APB slave contains a register file with:
-  •	REG_NUM registers
-  •	Each register width = DATA_WIDTH
+#### 2. apb_master
+Fix the FSM to correctly follow APB protocol:
 
-Registers are word aligned, and the register index is derived from:
-PADDR[ADDR_WIDTH-1:2]
-**Write condition**
-  •	PSELx = 1
-  •	PENABLE = 1
-  •	PWRITE = 1	
-Write PWDATA to the selected register.
-**Read condition**
-  •	PSELx = 1
-  •	PENABLE = 1
-  •	PWRITE = 0
-Return the selected register value on PRDATA.
+States:
+- IDLE
+- SETUP
+- ACCESS
 
-**5. Reset Behavior**
-When PRESET_n = 0:
-  •	All registers must reset to 0
-  •	PRDATA = 0
-  •	PSLVERR = 0
-  •	PREADY = 1
+Correct behavior:
 
-**6. Testbench Compatibility**
-A verification testbench is provided in the tests directory.
-Your corrected RTL must:
-  •	Compile successfully
-  •	Pass all testcases in the provided testbench
-  •	Produce correct read/write behavior for the APB register file
-The simulation should complete without errors and all testcases must pass.
+- IDLE:
+  - PSEL = 0, PENABLE = 0
+  - On TRANSFER → move to SETUP
+
+- SETUP:
+  - PSEL = 1, PENABLE = 0
+  - Drive address, write control, and write data
+  - Move to ACCESS in next cycle
+
+- ACCESS:
+  - PSEL = 1, PENABLE = 1
+  - Wait for PREADY = 1
+  - On completion → return to IDLE
+
+Additional requirements:
+- Do NOT skip SETUP phase
+- Maintain stable signals during ACCESS
+- Properly reset all outputs
+
+---
+
+#### 3. apb_slave
+Fix memory and protocol behavior:
+
+- Implement a register file of size REG_NUM
+- Use proper address decoding:
+  - index = PADDR[ADDR_WIDTH-1:2] (word aligned)
+
+- Write Operation:
+  - When PSEL=1, PENABLE=1, PWRITE=1 → write to memory
+
+- Read Operation:
+  - When PSEL=1, PENABLE=1, PWRITE=0 → output PRDATA
+
+- Reset behavior:
+  - All registers must reset to 0
+
+- Fix outputs:
+  - PREADY must always be 1 (no toggling)
+  - PSLVERR must always be 0
+
+---
+
+### Important Constraints
+
+- Do NOT change module interfaces (ports)
+- Do NOT add new signals unless necessary
+- Keep design synthesizable
+- Maintain clean FSM coding style
+- Avoid latches
+
+---
 See docs/Specification.md for detailed APB protocol behavior and signal descriptions.
