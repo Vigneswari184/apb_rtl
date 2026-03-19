@@ -1,3 +1,4 @@
+`timescale 1ns/1ps
 module apb_slave #(
     parameter DATA_WIDTH = 32,
     parameter ADDR_WIDTH = 8,
