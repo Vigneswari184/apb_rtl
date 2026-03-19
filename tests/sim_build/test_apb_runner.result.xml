@@ -1,10 +1,8 @@
 <testsuites name="results">
   <testsuite name="all" package="all">
-    <property name="random_seed" value="1773824956" />
-    <testcase name="apb_random_test" classname="test_apb_rtl_hidden" file="/home/arunvigni/apb_rtl/tests/test_apb_rtl_hidden.py" lineno="97" time="0.01849651336669922" sim_time_ns="1010.0" ratio_time="54604.885795308066" />
-    <testcase name="apb_back_to_back_test" classname="test_apb_rtl_hidden" file="/home/arunvigni/apb_rtl/tests/test_apb_rtl_hidden.py" lineno="134" time="0.016060829162597656" sim_time_ns="1020.0" ratio_time="63508.55174870851" />
-    <testcase name="apb_reset_value_test" classname="test_apb_rtl_hidden" file="/home/arunvigni/apb_rtl/tests/test_apb_rtl_hidden.py" lineno="159" time="0.014696598052978516" sim_time_ns="820.0" ratio_time="55795.22533337659" />
-    <testcase name="apb_full_register_test" classname="test_apb_rtl_hidden" file="/home/arunvigni/apb_rtl/tests/test_apb_rtl_hidden.py" lineno="178" time="0.025272846221923828" sim_time_ns="1619.9999999999995" ratio_time="64100.41772796738" />
-    <testcase name="apb_stress_test" classname="test_apb_rtl_hidden" file="/home/arunvigni/apb_rtl/tests/test_apb_rtl_hidden.py" lineno="208" time="0.07961034774780273" sim_time_ns="5020.000000000001" ratio_time="63057.12940612741" />
+    <property name="random_seed" value="1773912217" />
+    <testcase name="apb_back_to_back_test" classname="test_apb_rtl_hidden" file="/home/arunvigni/apb_rtl/tests/test_apb_rtl_hidden.py" lineno="134" time="0.02170729637145996" sim_time_ns="1010.0" ratio_time="46528.13426032708" />
+    <testcase name="apb_reset_value_test" classname="test_apb_rtl_hidden" file="/home/arunvigni/apb_rtl/tests/test_apb_rtl_hidden.py" lineno="159" time="0.020131826400756836" sim_time_ns="820.0" ratio_time="40731.52547993226" />
+    <testcase name="apb_full_register_test" classname="test_apb_rtl_hidden" file="/home/arunvigni/apb_rtl/tests/test_apb_rtl_hidden.py" lineno="178" time="0.0360867977142334" sim_time_ns="1620.0" ratio_time="44891.76381979268" />
   </testsuite>
 </testsuites>

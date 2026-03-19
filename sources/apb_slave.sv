@@ -21,7 +21,7 @@ module apb_slave #(
     logic [DATA_WIDTH-1:0] mem [0:REG_NUM-1];
 
    
-    wire [3:0] addr_index = PADDR[3:0]; // ignores alignment
+    wire [3:0] addr_index = PADDR[5:2]; // ignores alignment
 
     always_ff @(posedge PCLK) begin
         if (PSEL && PENABLE) begin
