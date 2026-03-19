@@ -1,3 +1,4 @@
+`timescale 1ns/1ps
 module apb_top (
     input  logic        PCLK,
     input  logic        PRESETn,

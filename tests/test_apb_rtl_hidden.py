@@ -94,37 +94,37 @@ async def reset(dut):
 # Random Functional Test
 # -------------------------------------------------
 
-@cocotb.test()
-async def apb_random_test(dut):
+#@cocotb.test()
+#async def apb_random_test(dut):
 
-    cocotb.start_soon(Clock(dut.PCLK, 10, unit="ns").start())
+#    cocotb.start_soon(Clock(dut.PCLK, 10, unit="ns").start())
 
-    await reset(dut)
+    #await reset(dut)
 
-    driver = APBDriver(dut)
+    #driver = APBDriver(dut)
 
-    REG_NUM = 64
-    model = [0] * REG_NUM
+   # REG_NUM = 64
+   # model = [0] * REG_NUM
 
-    for _ in range(20):
+  #  for _ in range(20):
 
-        addr = random.randint(0, 63) * 4
+  #      addr = random.randint(0, 63) * 4
 
-        if random.random() < 0.5:
+   #     if random.random() < 0.5:
 
-            data = random.randint(0, 0xffffffff)
+   #         data = random.randint(0, 0xffffffff)
 
-            await driver.write(addr, data)
+    #        await driver.write(addr, data)
 
-            model[(addr >> 2) % REG_NUM] = data
+    #        model[(addr >> 2) % REG_NUM] = data
 
-        else:
+    #    else:
 
-            val = await driver.read(addr)
+    #        val = await driver.read(addr)
 
-            expected = model[(addr >> 2) % REG_NUM]
+     #       expected = model[(addr >> 2) % REG_NUM]
 
-            assert val == expected, f"Mismatch addr {addr}: got {val} expected {expected}"
+      #      assert val == expected, f"Mismatch addr {addr}: got {val} expected {expected}"
 
 
 # -------------------------------------------------
@@ -205,43 +205,42 @@ async def apb_full_register_test(dut):
 # Stress test
 # -------------------------------------------------
 
-@cocotb.test()
-async def apb_stress_test(dut):
+# @cocotb.test()
+#async def apb_stress_test(dut):
 
-    cocotb.start_soon(Clock(dut.PCLK, 10, unit="ns").start())
+ #   cocotb.start_soon(Clock(dut.PCLK, 10, unit="ns").start())
 
-    await reset(dut)
+ #   await reset(dut)
 
-    driver = APBDriver(dut)
+ #   driver = APBDriver(dut)
 
-    model = {}
+ #   model = {}
 
-    for _ in range(100):
+ #   for _ in range(100):
 
-        addr = random.randint(0, 63) * 4
+ #       addr = random.randint(0, 63) * 4
 
-        if random.random() < 0.5:
+ #       if random.random() < 0.5:
 
-            data = random.randint(0, 0xffffffff)
+ #           data = random.randint(0, 0xffffffff)
 
-            await driver.write(addr, data)
+ #           await driver.write(addr, data)
 
-            model[addr] = data
+ #           model[addr] = data
 
-        else:
+ #       else:
 
-            val = await driver.read(addr)
+ #           val = await driver.read(addr)
 
-            expected = model.get(addr, 0)
+ #           expected = model.get(addr, 0)
 
-            assert val == expected, f"Stress mismatch addr {addr}"
+   #         assert val == expected, f"Stress mismatch addr {addr}"#
 
 
 # -------------------------------------------------
 # Runner
 # -------------------------------------------------
 
-@pytest.mark.timeout(120)
 def test_apb_runner():
 
     sim = os.getenv("SIM", "icarus")

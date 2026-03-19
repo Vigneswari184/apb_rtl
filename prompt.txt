@@ -9,91 +9,76 @@ You are given a buggy SystemVerilog RTL implementation of an APB system consisti
 
 The design currently compiles but contains multiple functional and protocol-related bugs.
 
-Known issues include:
-- apb_top does NOT instantiate or connect the master and slave
-- apb_master has incorrect FSM transitions and violates APB protocol timing
-- apb_slave has incorrect memory behavior, unstable PREADY, and improper reset handling
+Your Task
 
----
+1. Fix the RTL design in the `sources/` directory
+2. Create additional testcases in the testbench
+3. Add assertions to validate APB protocol behavior
 
-**Your Task**:
+RTL Fix Requirements
 
-Fix the RTL design in the `sources/` directory so that it behaves as a correct APB system.
-
----
-
-### Required Fixes
-
-#### 1. apb_top
-- Instantiate both `apb_master` and `apb_slave`
-- Properly connect all APB interface signals:
+1. apb_top
+- Instantiate apb_master and apb_slave
+- Properly connect APB signals:
   - PADDR, PWDATA, PRDATA
   - PWRITE, PSEL, PENABLE
   - PREADY, PSLVERR
-- Ensure signal directions and widths match correctly
 
----
-
-#### 2. apb_master
-Fix the FSM to correctly follow APB protocol:
-
-States:
-- IDLE
-- SETUP
-- ACCESS
-
-Correct behavior:
+2. apb_master
+Implement a correct APB FSM:
 
 - IDLE:
   - PSEL = 0, PENABLE = 0
-  - On TRANSFER → move to SETUP
+  - Wait for TRANSFER
 
 - SETUP:
   - PSEL = 1, PENABLE = 0
-  - Drive address, write control, and write data
-  - Move to ACCESS in next cycle
+  - Drive address and control signals
 
 - ACCESS:
   - PSEL = 1, PENABLE = 1
-  - Wait for PREADY = 1
-  - On completion → return to IDLE
+  - Wait for PREADY
+  - Return to IDLE
 
-Additional requirements:
-- Do NOT skip SETUP phase
-- Maintain stable signals during ACCESS
-- Properly reset all outputs
+Ensure:
+- No skipping of SETUP phase
+- Stable signals during ACCESS
+- Proper reset behavior
 
----
+ 3. apb_slave
+- Implement register memory
+- Use word-aligned addressing:
+  - index = PADDR[ADDR_WIDTH-1:2]
 
-#### 3. apb_slave
-Fix memory and protocol behavior:
+- Write:
+  - PSEL=1 & PENABLE=1 & PWRITE=1
 
-- Implement a register file of size REG_NUM
-- Use proper address decoding:
-  - index = PADDR[ADDR_WIDTH-1:2] (word aligned)
+- Read:
+  - PSEL=1 & PENABLE=1 & PWRITE=0
 
-- Write Operation:
-  - When PSEL=1, PENABLE=1, PWRITE=1 → write to memory
+- Reset:
+  - Registers initialized to 0
 
-- Read Operation:
-  - When PSEL=1, PENABLE=1, PWRITE=0 → output PRDATA
+- Outputs:
+  - PREADY = 1
+  - PSLVERR = 0
 
-- Reset behavior:
-  - All registers must reset to 0
+Assertions Requirement
 
-- Fix outputs:
-  - PREADY must always be 1 (no toggling)
-  - PSLVERR must always be 0
+Add assertions (SystemVerilog or cocotb checks) to verify:
 
----
+- PSEL must be high during SETUP and ACCESS
+- PENABLE must only be high in ACCESS phase
+- Read data is valid when PREADY is high
 
-### Important Constraints
+Verification
 
-- Do NOT change module interfaces (ports)
-- Do NOT add new signals unless necessary
-- Keep design synthesizable
-- Maintain clean FSM coding style
-- Avoid latches
+The design will be tested using cocotb tests in `tests/`.
 
----
-See docs/Specification.md for detailed APB protocol behavior and signal descriptions.
+Expected checks:
+- Functional correctness
+- Protocol behavior (basic level)
+
+Goal
+Produce a correct and stable APB RTL design and enhance verification with meaningful testcases and assertions.
+""",
